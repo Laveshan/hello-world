@@ -1,0 +1,14 @@
+select matterno, paymentamount, ni.OriginalStrikeDate,ni.StrikeDate,BankAccount,BankAccHolder,  ResultDescription
+from ResponseTransactions r
+join NAEDOInstruction ni on ni.NAEDOInstructionID = r.NAEDOInstructionID
+join naedo.dbo.NAEDOErrorCodes e on e.ResultCode = r.ReasonCode and e.FeedbackFileTypeID = 2
+join (
+		select idx,count(1) cnt
+		from ResponseTransactions r
+		join NAEDOInstruction ni on ni.NAEDOInstructionID = r.NAEDOInstructionID
+		where ReasonCode <> '99'
+		group by idx
+		having count(1) > 1
+	) as t on t.idx = ni.idx
+and ReasonCode <> '99'
+order by 1
